@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		774377192FE43F060084B848 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 774377182FE43F060084B848 /* README.md */; };
+		7743771A2FE43F060084B848 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 774377162FE43F060084B848 /* CLAUDE.md */; };
+		7743771B2FE43F060084B848 /* claudeCodeTranscript.txt in Resources */ = {isa = PBXBuildFile; fileRef = 774377172FE43F060084B848 /* claudeCodeTranscript.txt */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		77B80C362FE3BEC300F7A775 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +30,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		774377162FE43F060084B848 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
+		774377172FE43F060084B848 /* claudeCodeTranscript.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = claudeCodeTranscript.txt; sourceTree = "<group>"; };
+		774377182FE43F060084B848 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		77B80C282FE3BEC200F7A775 /* RepoExplorer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RepoExplorer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B80C352FE3BEC300F7A775 /* RepoExplorerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RepoExplorerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B80C3F2FE3BEC300F7A775 /* RepoExplorerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RepoExplorerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +84,9 @@
 		77B80C1F2FE3BEC200F7A775 = {
 			isa = PBXGroup;
 			children = (
+				774377162FE43F060084B848 /* CLAUDE.md */,
+				774377172FE43F060084B848 /* claudeCodeTranscript.txt */,
+				774377182FE43F060084B848 /* README.md */,
 				77B80C2A2FE3BEC200F7A775 /* RepoExplorer */,
 				77B80C382FE3BEC300F7A775 /* RepoExplorerTests */,
 				77B80C422FE3BEC300F7A775 /* RepoExplorerUITests */,
@@ -212,6 +224,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				774377192FE43F060084B848 /* README.md in Resources */,
+				7743771A2FE43F060084B848 /* CLAUDE.md in Resources */,
+				7743771B2FE43F060084B848 /* claudeCodeTranscript.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
