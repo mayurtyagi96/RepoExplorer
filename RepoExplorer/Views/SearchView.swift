@@ -15,6 +15,9 @@ struct SearchView: View {
         NavigationStack {
             content
                 .navigationTitle("RepoExplorer")
+                .navigationDestination(for: Repository.self) { repo in
+                    RepositoryDetailView(repo: repo)
+                }
         }
         .searchable(text: $viewModel.query, prompt: "Search topics, libraries, repos")
         // `.task(id:)` re-runs on every query change (cancelling the prior run) and on disappear,
@@ -49,7 +52,9 @@ struct SearchView: View {
 
     private var resultsList: some View {
         List(viewModel.repos) { repo in
-            RepositoryRow(repo: repo)
+            NavigationLink(value: repo) {
+                RepositoryRow(repo: repo)
+            }
         }
         .listStyle(.plain)
     }

@@ -14,6 +14,17 @@ struct AppDependencies {
 
     static let live = AppDependencies(apiClient: LiveGitHubAPIClient())
 
+    /// Resolves the graph for the running process, substituting canned data for UI tests
+    /// (launch argument `-uiTestStubResults`) so flows can be exercised without the network.
+    static func current() -> AppDependencies {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-uiTestStubResults") {
+            return AppDependencies(apiClient: PreviewGitHubAPIClient(response: .sampleResponse))
+        }
+        #endif
+        return .live
+    }
+
     func makeSearchViewModel() -> SearchViewModel {
         SearchViewModel(client: apiClient)
     }

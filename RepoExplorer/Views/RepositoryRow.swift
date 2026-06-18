@@ -13,13 +13,7 @@ struct RepositoryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
-                AsyncImage(url: repo.owner?.avatarImageURL) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    Color.secondary.opacity(0.2)
-                }
-                .frame(width: 22, height: 22)
-                .clipShape(RoundedRectangle(cornerRadius: 5))
+                AvatarView(url: repo.owner?.avatarImageURL, size: 22)
 
                 Text(repo.fullName)
                     .font(.headline)
@@ -34,13 +28,11 @@ struct RepositoryRow: View {
             }
 
             HStack(spacing: 14) {
-                Label(repo.stargazersCount.formatted(.number.notation(.compactName)),
-                      systemImage: "star.fill")
+                Label(repo.stargazersCount.formattedCompact, systemImage: "star.fill")
                 if let language = repo.language, !language.isEmpty {
                     Label(language, systemImage: "chevron.left.forwardslash.chevron.right")
                 }
-                Label(repo.forksCount.formatted(.number.notation(.compactName)),
-                      systemImage: "tuningfork")
+                Label(repo.forksCount.formattedCompact, systemImage: "tuningfork")
             }
             .font(.caption)
             .foregroundStyle(.secondary)

@@ -25,6 +25,11 @@ final class RepositoryDecodingTests: XCTestCase {
         XCTAssertEqual(repo.topicList, ["swift", "compiler"])
     }
 
+    func test_updatedDate_parsesISO8601() throws {
+        let repo = try decoder.decode(Repository.self, from: Data(JSONFixtures.repositoryFull.utf8))
+        XCTAssertNotNil(repo.updatedDate)   // "2026-06-18T00:00:00Z"
+    }
+
     func test_handlesNullAndAbsentFields() throws {
         let repo = try decoder.decode(Repository.self, from: Data(JSONFixtures.repositoryMinimal.utf8))
 

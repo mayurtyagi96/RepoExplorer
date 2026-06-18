@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-RepoExplorer is a SwiftUI app for discovering GitHub repositories, built in phases as an MVVM app under Swift 6 strict concurrency. **Phase 1 (search + results list) is implemented and tested.** Planned next: Phase 2 (metadata-only repo detail screen), Phase 3 (persistent recent searches via a UserDefaults-backed actor), Phase 4 (pagination/polish). No third-party dependencies — Foundation + SwiftUI + URLSession only. GitHub search is unauthenticated (the client has a token-injection seam for later).
+RepoExplorer is a SwiftUI app for discovering GitHub repositories, built in phases as an MVVM app under Swift 6 strict concurrency. **Phases 1–2 (search + results list, metadata-only repo detail) are implemented and tested.** Planned next: Phase 3 (persistent recent searches via a UserDefaults-backed actor), Phase 4 (pagination/polish). No third-party dependencies — Foundation + SwiftUI + URLSession only. GitHub search is unauthenticated (the client has a token-injection seam for later).
 
 ## Toolchain
 
@@ -56,11 +56,11 @@ xcodebuild test -project RepoExplorer.xcodeproj -scheme RepoExplorer \
 
 Clean separation of View ↔ ViewModel ↔ services, with services behind `Sendable` protocols so they are mockable. New `.swift` files are picked up automatically — the Xcode targets use `PBXFileSystemSynchronizedRootGroup`, so **do not edit `project.pbxproj` to add files**; just create them under the target folder.
 
-- `RepoExplorer/App/AppDependencies.swift` — composition root; `.live` builds the real client and `makeSearchViewModel()`.
+- `RepoExplorer/App/AppDependencies.swift` — composition root; `.live` builds the real client and `makeSearchViewModel()`. `current()` swaps in canned data when launched with `-uiTestStubResults` (used by `RepoExplorerUITests`).
 - `RepoExplorer/Models/` — `Repository` (+ `Owner`, `License`), `SearchResponse`, `GitHubAPIError`. Immutable `Decodable, Sendable` structs.
 - `RepoExplorer/Networking/` — `GitHubAPIClient` (protocol) + `LiveGitHubAPIClient` (URLSession).
 - `RepoExplorer/ViewModels/SearchViewModel.swift` — `@MainActor @Observable`; owns `query`, `repos`, and a `status` state enum.
-- `RepoExplorer/Views/` — `SearchView` (root; `.searchable` + `.task(id:)`), `RepositoryRow`, `ErrorStateView`.
+- `RepoExplorer/Views/` — `SearchView` (root; `.searchable` + `.task(id:)`; `NavigationStack` + `.navigationDestination(for: Repository.self)`), `RepositoryRow`, `RepositoryDetailView` (metadata-only), `ErrorStateView`, `Components/FlowLayout` (wrapping chips).
 - `RepoExplorer/PreviewSupport.swift` — `#if DEBUG` sample data + factories (`.make()`, `.samples`), reused by previews and tests via `@testable`.
 - `RepoExplorerTests/` — XCTest. `@MainActor`-annotated VM test classes; mocks in `Support/` (`StubGitHubAPIClient`, `actor SpyGitHubAPIClient`, `MockURLProtocol`, `JSONFixtures`).
 

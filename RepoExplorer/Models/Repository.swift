@@ -36,6 +36,9 @@ nonisolated struct Repository: Decodable, Sendable, Identifiable, Hashable {
     /// Parsed repository web URL, if the string is a valid URL.
     var webURL: URL? { URL(string: htmlURL) }
 
+    /// Parsed "last updated" timestamp, if the ISO 8601 string is valid.
+    var updatedDate: Date? { try? Date(updatedAt, strategy: .iso8601) }
+
     // Explicit snake_case keys. We deliberately do NOT use `.convertFromSnakeCase`, which maps
     // `html_url` -> `htmlUrl` (lowercase "rl") and would make `htmlURL`/`spdxID` fail to decode.
     enum CodingKeys: String, CodingKey {
