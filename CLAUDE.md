@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-RepoExplorer is a SwiftUI app for discovering GitHub repositories, built in phases as an MVVM app under Swift 6 strict concurrency. **Phases 1–2 (search + results list, metadata-only repo detail) are implemented and tested.** Planned next: Phase 3 (persistent recent searches via a UserDefaults-backed actor), Phase 4 (pagination/polish). No third-party dependencies — Foundation + SwiftUI + URLSession only. GitHub search is unauthenticated (the client has a token-injection seam for later).
+RepoExplorer is a SwiftUI app for discovering GitHub repositories, built in phases as an MVVM app under Swift 6 strict concurrency. **Phases 1–3 (search + results list, metadata-only repo detail, persistent recent searches) are implemented and tested.** Planned next: Phase 4 (pagination/polish). No third-party dependencies — Foundation + SwiftUI + URLSession only. GitHub search is unauthenticated (the client has a token-injection seam for later).
 
 ## Toolchain
 
@@ -56,9 +56,10 @@ xcodebuild test -project RepoExplorer.xcodeproj -scheme RepoExplorer \
 
 Clean separation of View ↔ ViewModel ↔ services, with services behind `Sendable` protocols so they are mockable. New `.swift` files are picked up automatically — the Xcode targets use `PBXFileSystemSynchronizedRootGroup`, so **do not edit `project.pbxproj` to add files**; just create them under the target folder.
 
-- `RepoExplorer/App/AppDependencies.swift` — composition root; `.live` builds the real client and `makeSearchViewModel()`. `current()` swaps in canned data when launched with `-uiTestStubResults` (used by `RepoExplorerUITests`).
-- `RepoExplorer/Models/` — `Repository` (+ `Owner`, `License`), `SearchResponse`, `GitHubAPIError`. Immutable `Decodable, Sendable` structs.
+- `RepoExplorer/App/AppDependencies.swift` — composition root; `.live` builds the real client + UserDefaults history store and `makeSearchViewModel()`. `current()` swaps in canned data on an isolated UserDefaults suite when launched with `-uiTestStubResults` (and pre-seeds recent searches with `-uiTestSeedHistory`); used by `RepoExplorerUITests`.
+- `RepoExplorer/Models/` — `Repository` (+ `Owner`, `License`), `SearchResponse`, `GitHubAPIError`, `RecentSearch`. Immutable `Decodable/Codable, Sendable` structs.
 - `RepoExplorer/Networking/` — `GitHubAPIClient` (protocol) + `LiveGitHubAPIClient` (URLSession).
+- `RepoExplorer/Persistence/` — `SearchHistoryStore` (protocol, `Sendable`/`nonisolated` reqs) + `UserDefaultsSearchHistoryStore` (persisting `actor`) and `InMemorySearchHistoryStore` (the VM's default, for previews/tests). Dedup + MRU + cap shared via the `recentSearches(byInserting:…)` helper.
 - `RepoExplorer/ViewModels/SearchViewModel.swift` — `@MainActor @Observable`; owns `query`, `repos`, and a `status` state enum.
 - `RepoExplorer/Views/` — `SearchView` (root; `.searchable` + `.task(id:)`; `NavigationStack` + `.navigationDestination(for: Repository.self)`), `RepositoryRow`, `RepositoryDetailView` (metadata-only), `ErrorStateView`, `Components/FlowLayout` (wrapping chips).
 - `RepoExplorer/PreviewSupport.swift` — `#if DEBUG` sample data + factories (`.make()`, `.samples`), reused by previews and tests via `@testable`.
@@ -75,3 +76,4 @@ Clean separation of View ↔ ViewModel ↔ services, with services behind `Senda
 - **No Combine, no GCD/DispatchQueue.** Use async/await, actors, `Task`, `Task.sleep`.
 - **Decoding:** explicit snake_case `CodingKeys` (not `.convertFromSnakeCase`, which breaks `htmlURL`/`avatarURL`/`spdxID`).
 - **`@MainActor` test methods must be `async`** — a synchronous `@MainActor` XCTest method can be invoked off-main and trap.
+- **Actors are constructed on the main actor.** Under default `MainActor` isolation an `actor`'s initializer is inferred `@MainActor` (and you can't mark an actor's sync init `nonisolated`), so build actor-backed stores from a main-actor context — their *methods* still run off-main. Keep immutable actor config as `nonisolated let` (Sendable types) so the init can set it without touching actor-isolated state; tests that construct an actor directly should be `@MainActor`.

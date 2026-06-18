@@ -29,12 +29,18 @@ final class SearchViewModel {
     private(set) var status: Status = .idle
     /// The trimmed query backing the current results — used for the empty-state label.
     private(set) var searchedQuery: String = ""
+    /// Recent searches, most-recent first (persisted via `history`).
+    private(set) var recent: [RecentSearch] = []
+    /// True once `loadHistory()` has run, so the idle view doesn't flash the empty prompt before
+    /// persisted history is read.
+    private(set) var didLoadHistory = false
 
-    /// Bumped by `retry()` and folded into the View's `.task` id so a retry re-runs through the
-    /// same structured-cancellation channel instead of an orphaned `Task`.
+    /// Bumped by `retry()`/`selectRecent(_:)` and folded into the View's `.task` id so they re-run
+    /// through the same structured-cancellation channel instead of an orphaned `Task`.
     private(set) var retryToken: Int = 0
 
     private let client: GitHubAPIClient
+    private let history: SearchHistoryStore
     private let debounce: Duration
     private let perPage: Int
 
@@ -45,8 +51,12 @@ final class SearchViewModel {
     /// Distinguishes an explicit retry from a keystroke, so a retry can skip the debounce.
     private var handledRetryToken = 0
 
-    init(client: GitHubAPIClient, debounce: Duration = .milliseconds(350), perPage: Int = 30) {
+    init(client: GitHubAPIClient,
+         history: SearchHistoryStore = InMemorySearchHistoryStore(),
+         debounce: Duration = .milliseconds(350),
+         perPage: Int = 30) {
         self.client = client
+        self.history = history
         self.debounce = debounce
         self.perPage = perPage
     }
@@ -81,6 +91,28 @@ final class SearchViewModel {
         retryToken &+= 1
     }
 
+    /// Loads persisted recent searches (call on appear).
+    func loadHistory() async {
+        recent = await history.recent()
+        didLoadHistory = true
+    }
+
+    /// Runs a tapped recent search immediately (bypasses the debounce, like a retry).
+    func selectRecent(_ query: String) {
+        self.query = query
+        retryToken &+= 1
+    }
+
+    func clearHistory() async {
+        recent = [] // update UI immediately; avoids races between out-of-order read-backs
+        await history.clear()
+    }
+
+    func removeRecent(_ query: String) async {
+        recent.removeAll { $0.query == query } // update UI immediately (no read-back race)
+        await history.remove(query)
+    }
+
     private func reset() {
         generation += 1 // invalidate any in-flight search
         repos = []
@@ -100,6 +132,7 @@ final class SearchViewModel {
             guard token == generation else { return } // a newer search superseded this one
             repos = response.items
             status = response.items.isEmpty ? .empty : .loaded
+            await recordHistory(query, token: token)
         } catch is CancellationError {
             guard token == generation else { return } // superseded → let the newer search settle state
             // Torn down (e.g. view disappeared) with no newer search: derive a stable status, never strand `.loading`.
@@ -108,6 +141,13 @@ final class SearchViewModel {
             guard token == generation else { return }
             status = .error(Self.message(for: error))
         }
+    }
+
+    private func recordHistory(_ query: String, token: Int) async {
+        guard !Task.isCancelled else { return }   // search abandoned (e.g. the view was torn down)
+        await history.record(query)
+        guard token == generation else { return } // superseded — let the newer search publish `recent`
+        recent = await history.recent()
     }
 
     private static func message(for error: any Error) -> String {

@@ -25,6 +25,9 @@ struct SearchView: View {
         .task(id: taskID) {
             await viewModel.queryChanged()
         }
+        .task {
+            await viewModel.loadHistory()
+        }
     }
 
     private var taskID: String { "\(viewModel.query)#\(viewModel.retryToken)" }
@@ -33,11 +36,17 @@ struct SearchView: View {
     private var content: some View {
         switch viewModel.status {
         case .idle:
-            ContentUnavailableView(
-                "Discover repositories",
-                systemImage: "magnifyingglass",
-                description: Text("Search GitHub for a topic or library to get started.")
-            )
+            if !viewModel.recent.isEmpty {
+                recentSearches
+            } else if viewModel.didLoadHistory {
+                ContentUnavailableView(
+                    "Discover repositories",
+                    systemImage: "magnifyingglass",
+                    description: Text("Search GitHub for a topic or library to get started.")
+                )
+            } else {
+                Color.clear // brief, until persisted history loads — avoids flashing the prompt
+            }
         case .loading:
             ProgressView("Searching…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -54,6 +63,39 @@ struct SearchView: View {
         List(viewModel.repos) { repo in
             NavigationLink(value: repo) {
                 RepositoryRow(repo: repo)
+            }
+        }
+        .listStyle(.plain)
+    }
+
+    private var recentSearches: some View {
+        List {
+            Section {
+                ForEach(viewModel.recent) { item in
+                    Button {
+                        viewModel.selectRecent(item.query)
+                    } label: {
+                        Label(item.query, systemImage: "clock.arrow.circlepath")
+                            .foregroundStyle(.primary)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            Task { await viewModel.removeRecent(item.query) }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                }
+            } header: {
+                HStack {
+                    Text("Recent searches")
+                    Spacer()
+                    Button("Clear") {
+                        Task { await viewModel.clearHistory() }
+                    }
+                    .font(.caption.weight(.semibold))
+                    .textCase(nil)
+                }
             }
         }
         .listStyle(.plain)

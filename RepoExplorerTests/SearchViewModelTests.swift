@@ -156,4 +156,88 @@ final class SearchViewModelTests: XCTestCase {
         _ = await taskB.value
         XCTAssertEqual(viewModel.status, .loaded)       // B settles the state
     }
+
+    // MARK: - Search history (Phase 3)
+
+    func test_successfulSearch_recordsHistory() async {
+        let store = InMemorySearchHistoryStore()
+        let viewModel = SearchViewModel(client: StubGitHubAPIClient(response: response([.make()])),
+                                        history: store, debounce: .zero)
+        viewModel.query = "swift"
+
+        await viewModel.queryChanged()
+
+        let recorded = await store.recent()
+        XCTAssertEqual(recorded.map(\.query), ["swift"])
+        XCTAssertEqual(viewModel.recent.map(\.query), ["swift"])
+    }
+
+    func test_cancelledSearch_doesNotRecordHistory() async {
+        let store = InMemorySearchHistoryStore()
+        let spy = SpyGitHubAPIClient(response: response([.make()]), delay: .milliseconds(200))
+        let viewModel = SearchViewModel(client: spy, history: store, debounce: .zero)
+        viewModel.query = "swift"
+
+        let task = Task { await viewModel.queryChanged() }
+        try? await Task.sleep(for: .milliseconds(60))
+        task.cancel()
+        await task.value
+
+        let recorded = await store.recent()
+        XCTAssertTrue(recorded.isEmpty)
+    }
+
+    /// Even when the client returns a value despite cancellation (it doesn't throw), an abandoned
+    /// search must not record history — the success branch must guard on cancellation.
+    func test_cancelledSearch_doesNotRecordHistory_whenClientReturnsNormally() async {
+        let store = InMemorySearchHistoryStore()
+        let client = CancellationIgnoringClient(response: response([.make()]))
+        let viewModel = SearchViewModel(client: client, history: store, debounce: .zero)
+        viewModel.query = "swift"
+
+        let task = Task { await viewModel.queryChanged() }
+        try? await Task.sleep(for: .milliseconds(60))
+        task.cancel()
+        await task.value
+
+        let recorded = await store.recent()
+        XCTAssertTrue(recorded.isEmpty)
+    }
+
+    func test_loadHistory_populatesRecent() async {
+        let store = InMemorySearchHistoryStore()
+        await store.record("swift")
+        let viewModel = SearchViewModel(client: StubGitHubAPIClient(response: response([])), history: store)
+
+        await viewModel.loadHistory()
+
+        XCTAssertEqual(viewModel.recent.map(\.query), ["swift"])
+    }
+
+    func test_selectRecent_rerunsSearchImmediately() async {
+        let spy = SpyGitHubAPIClient(response: response([.make()]))
+        let viewModel = SearchViewModel(client: spy, history: InMemorySearchHistoryStore(),
+                                        debounce: .milliseconds(500))
+
+        viewModel.selectRecent("swift")
+        await viewModel.queryChanged()   // mirrors the View's `.task(id:)` firing
+
+        XCTAssertEqual(viewModel.query, "swift")
+        let queries = await spy.receivedQueries
+        XCTAssertEqual(queries, ["swift"])
+        XCTAssertEqual(viewModel.status, .loaded)
+    }
+
+    func test_clearHistory_emptiesRecent() async {
+        let store = InMemorySearchHistoryStore()
+        await store.record("swift")
+        let viewModel = SearchViewModel(client: StubGitHubAPIClient(response: response([])), history: store)
+        await viewModel.loadHistory()
+
+        await viewModel.clearHistory()
+
+        XCTAssertTrue(viewModel.recent.isEmpty)
+        let stored = await store.recent()
+        XCTAssertTrue(stored.isEmpty)
+    }
 }
