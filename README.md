@@ -79,10 +79,14 @@ See [`CLAUDE.md`](CLAUDE.md) for the detailed architecture and concurrency conve
 
 
 ## Next To Do - 
-
+1. Add the caching for the repo details that already have fetched
+2. UI/UX improvements that will be smooth and good for the user
 
 ## Assumption to -
+1. for now no need to store the cache details
+2. will save latest 20 recent search history - so will store in teh user defaults
+3. 
  
 
 ## Questions about product -
-
+1. do we need to implement the pagination
