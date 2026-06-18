@@ -9,7 +9,7 @@ RepoExplorer is a SwiftUI app for discovering GitHub repositories, built in phas
 ## Toolchain
 
 - Swift 6.0, Xcode 26.1+, iOS deployment target **26.1**, iPhone + iPad (`TARGETED_DEVICE_FAMILY = 1,2`).
-- Pure SwiftUI app lifecycle (`@main RepoExplorerApp` → `WindowGroup` → `ContentView`); no AppDelegate/SceneDelegate, no UIKit.
+- Pure SwiftUI app lifecycle (`@main RepoExplorerApp` → `WindowGroup` → `SearchView`); no AppDelegate/SceneDelegate, no UIKit.
 - No dependency manager in use (no SPM packages, Podfile, or Cartfile). No linter/formatter or CI configured.
 
 ## Swift 6 concurrency (important)
@@ -48,9 +48,11 @@ xcodebuild test -project RepoExplorer.xcodeproj -scheme RepoExplorer \
 
 # A single test method — -only-testing:<Target>/<Class>/<method>
 xcodebuild test -project RepoExplorer.xcodeproj -scheme RepoExplorer \
-  -only-testing:RepoExplorerTests/RepoExplorerTests/testExample \
+  -only-testing:RepoExplorerTests/SearchViewModelTests/test_search_success_setsLoaded \
   -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
+
+Reuse a fixed `-derivedDataPath` (e.g. `/tmp/RepoExplorer-DD`) across runs for fast incremental builds. The only expected build warning is a benign `appintentsmetadataprocessor` "No AppIntents.framework dependency" line.
 
 ## Architecture (MVVM)
 
@@ -59,11 +61,12 @@ Clean separation of View ↔ ViewModel ↔ services, with services behind `Senda
 - `RepoExplorer/App/AppDependencies.swift` — composition root; `.live` builds the real client + UserDefaults history store and `makeSearchViewModel()`. `current()` swaps in canned data on an isolated UserDefaults suite when launched with `-uiTestStubResults` (and pre-seeds recent searches with `-uiTestSeedHistory`); used by `RepoExplorerUITests`.
 - `RepoExplorer/Models/` — `Repository` (+ `Owner`, `License`), `SearchResponse`, `GitHubAPIError`, `RecentSearch`. Immutable `Decodable/Codable, Sendable` structs.
 - `RepoExplorer/Networking/` — `GitHubAPIClient` (protocol) + `LiveGitHubAPIClient` (URLSession).
-- `RepoExplorer/Persistence/` — `SearchHistoryStore` (protocol, `Sendable`/`nonisolated` reqs) + `UserDefaultsSearchHistoryStore` (persisting `actor`) and `InMemorySearchHistoryStore` (the VM's default, for previews/tests). Dedup + MRU + cap shared via the `recentSearches(byInserting:…)` helper.
-- `RepoExplorer/ViewModels/SearchViewModel.swift` — `@MainActor @Observable`; owns `query`, `repos`, and a `status` state enum.
-- `RepoExplorer/Views/` — `SearchView` (root; `.searchable` + `.task(id:)`; `NavigationStack` + `.navigationDestination(for: Repository.self)`), `RepositoryRow`, `RepositoryDetailView` (metadata-only), `ErrorStateView`, `Components/FlowLayout` (wrapping chips).
+- `RepoExplorer/Persistence/` — `SearchHistoryStore` (protocol, `Sendable`/`nonisolated` reqs) + `UserDefaultsSearchHistoryStore` (persisting `actor`) and `InMemorySearchHistoryStore` (the VM's default, for previews/tests). Case-insensitive dedup + MRU + cap shared via the `recentSearches(byInserting:…)` helper. Stores only `{query, date}` — API results are intentionally **not** cached; tapping a recent search re-fetches live.
+- `RepoExplorer/ViewModels/SearchViewModel.swift` — `@MainActor @Observable`; owns `query`, `repos`, a `status` state enum, and `recent` (history). Debounced + generation-guarded search; `retry()`/`selectRecent()` (immediate re-run); `loadHistory`/`clearHistory`/`removeRecent`.
+- `RepoExplorer/Views/` — `SearchView` (root; `.searchable` + `.task(id:)`; `NavigationStack` + `.navigationDestination(for: Repository.self)`; recent-searches list in the idle state), `RepositoryRow`, `RepositoryDetailView` (metadata-only), `ErrorStateView`, `Components/AvatarView`, `Components/FlowLayout` (wrapping chips).
+- `RepoExplorer/Extensions/` — small shared helpers (e.g. `Int.formattedCompact`).
 - `RepoExplorer/PreviewSupport.swift` — `#if DEBUG` sample data + factories (`.make()`, `.samples`), reused by previews and tests via `@testable`.
-- `RepoExplorerTests/` — XCTest. `@MainActor`-annotated VM test classes; mocks in `Support/` (`StubGitHubAPIClient`, `actor SpyGitHubAPIClient`, `MockURLProtocol`, `JSONFixtures`).
+- `RepoExplorerTests/` — XCTest. `@MainActor`-annotated test classes; mocks in `Support/` (`StubGitHubAPIClient`, `actor SpyGitHubAPIClient`, `SequencedGitHubAPIClient`, `CancellationIgnoringClient`, `MockURLProtocol`, `JSONFixtures`). UI tests drive deterministic, network-free flows via the `-uiTestStubResults` / `-uiTestSeedHistory` launch args.
 
 ## Concurrency conventions (non-negotiable under these build settings)
 
@@ -72,7 +75,8 @@ Clean separation of View ↔ ViewModel ↔ services, with services behind `Senda
 - **Off-main work needs `@concurrent`, not just `nonisolated`.** A bare `nonisolated async` func runs on the *caller's* actor (= main when called from the VM). `LiveGitHubAPIClient.searchRepositories` is `@concurrent nonisolated` so request building + decode run off-main. `Sendable` alone does **not** move a type off the main actor.
 - **Model/service types are declared `nonisolated`** so their `Decodable` conformances are usable from off-main decoding (otherwise: `#IsolatedConformances` error). Protocol requirements crossing into the VM are `nonisolated`.
 - **`SearchViewModel` is `@MainActor` and never `Sendable`/`@unchecked Sendable`.** UI state mutates only on main; values crossing in are immutable `Sendable` structs.
-- **Cancellation is structured:** the View drives searches via `.task(id:)` (which cancels on query change and on disappear); the VM debounces *inline* with `Task.sleep` (no inner unstructured `Task`), checks `Task.checkCancellation()` before mutating state, and derives a stable `status` on `CancellationError` (never strands `.loading`).
+- **Cancellation is structured + generation-guarded:** the View drives searches via `.task(id:)` (cancels on query change and disappear); the VM debounces *inline* with `Task.sleep` (no inner unstructured `Task`). Each `search()` stamps a `generation` token and guards every state write with `guard token == generation`, so a superseded task can't overwrite newer state; on `CancellationError` it derives a stable `status` (never strands `.loading`). Search history is recorded only on a committed search that is neither cancelled (`!Task.isCancelled`) nor superseded.
+- **Don't mutate `@Observable` state from multiple unstructured `Task {}` via a store read-back** — their `@MainActor` continuations can resolve out of order and republish a stale value. Mutate the published state optimistically (synchronously on the main actor) and persist afterward; see `removeRecent`/`clearHistory`.
 - **No Combine, no GCD/DispatchQueue.** Use async/await, actors, `Task`, `Task.sleep`.
 - **Decoding:** explicit snake_case `CodingKeys` (not `.convertFromSnakeCase`, which breaks `htmlURL`/`avatarURL`/`spdxID`).
 - **`@MainActor` test methods must be `async`** — a synchronous `@MainActor` XCTest method can be invoked off-main and trap.
