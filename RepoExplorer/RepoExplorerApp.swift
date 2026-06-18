@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct RepoExplorerApp: App {
+    @State private var searchViewModel = AppDependencies.live.makeSearchViewModel()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SearchView(viewModel: searchViewModel)
         }
     }
 }
