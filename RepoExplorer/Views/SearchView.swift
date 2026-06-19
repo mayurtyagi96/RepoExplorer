@@ -19,6 +19,7 @@ struct SearchView: View {
                     RepositoryDetailView(repo: repo)
                 }
         }
+        .tint(Theme.accent)
         .searchable(text: $viewModel.query, prompt: "Search topics, libraries, repos")
         // `.task(id:)` re-runs on every query change (cancelling the prior run) and on disappear,
         // which is what tears down the in-flight request. `retryToken` re-runs the same query.
@@ -34,28 +35,44 @@ struct SearchView: View {
 
     @ViewBuilder
     private var content: some View {
-        switch viewModel.status {
-        case .idle:
-            if !viewModel.recent.isEmpty {
-                recentSearches
-            } else if viewModel.didLoadHistory {
-                ContentUnavailableView(
-                    "Discover repositories",
-                    systemImage: "magnifyingglass",
-                    description: Text("Search GitHub for a topic or library to get started.")
-                )
-            } else {
-                Color.clear // brief, until persisted history loads — avoids flashing the prompt
+        Group {
+            switch viewModel.status {
+            case .idle:
+                idleContent
+            case .loading:
+                LoadingListView()
+                    .transition(.opacity)
+            case .empty:
+                ContentUnavailableView.search(text: viewModel.searchedQuery)
+                    .transition(.opacity)
+            case .error(let message):
+                ErrorStateView(message: message, retry: viewModel.retry)
+                    .transition(.opacity)
+            case .loaded:
+                resultsList
+                    .transition(.opacity)
             }
-        case .loading:
-            ProgressView("Searching…")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        case .empty:
-            ContentUnavailableView.search(text: viewModel.searchedQuery)
-        case .error(let message):
-            ErrorStateView(message: message, retry: viewModel.retry)
-        case .loaded:
-            resultsList
+        }
+        .animation(.snappy, value: viewModel.status)
+    }
+
+    @ViewBuilder
+    private var idleContent: some View {
+        if !viewModel.recent.isEmpty {
+            recentSearches.transition(.opacity)
+        } else if viewModel.didLoadHistory {
+            ContentUnavailableView {
+                Label {
+                    Text("Discover repositories")
+                } icon: {
+                    Image(systemName: "magnifyingglass").foregroundStyle(Theme.accentGradient)
+                }
+            } description: {
+                Text("Search GitHub for a topic or library to get started.")
+            }
+            .transition(.opacity)
+        } else {
+            Color.clear // brief, until persisted history loads — avoids flashing the prompt
         }
     }
 
@@ -64,8 +81,13 @@ struct SearchView: View {
             NavigationLink(value: repo) {
                 RepositoryRow(repo: repo)
             }
+            .buttonStyle(.plain)
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
         }
         .listStyle(.plain)
+        .animation(.snappy, value: viewModel.repos)
     }
 
     private var recentSearches: some View {

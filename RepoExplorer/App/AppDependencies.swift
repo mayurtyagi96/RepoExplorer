@@ -43,6 +43,13 @@ struct AppDependencies {
     }
 
     func makeSearchViewModel() -> SearchViewModel {
-        SearchViewModel(client: apiClient, history: historyStore)
+        let viewModel = SearchViewModel(client: apiClient, history: historyStore)
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if let i = args.firstIndex(of: "-uiTestQuery"), i + 1 < args.count {
+            viewModel.query = args[i + 1] // pre-fill the search (drives a deterministic results screen)
+        }
+        #endif
+        return viewModel
     }
 }

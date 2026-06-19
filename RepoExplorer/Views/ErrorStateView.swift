@@ -13,12 +13,17 @@ struct ErrorStateView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Couldn’t load results", systemImage: "exclamationmark.triangle")
+            Label {
+                Text("Couldn’t load results")
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Theme.issues)
+            }
         } description: {
             Text(message)
         } actions: {
             Button("Retry", action: retry)
                 .buttonStyle(.borderedProminent)
+                .controlSize(.large)
         }
     }
 }
