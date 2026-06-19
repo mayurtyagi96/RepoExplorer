@@ -81,12 +81,16 @@ See [`CLAUDE.md`](CLAUDE.md) for the detailed architecture and concurrency conve
 ## Next To Do - 
 1. Add the caching for the repo details that already have fetched
 2. UI/UX improvements that will be smooth and good for the user
+3. Pagination - load more pages as the user scrolls
 
 ## Assumption to -
 1. for now no need to store the cache details
 2. will save latest 20 recent search history - so will store in teh user defaults
-3. 
+3. Pagination
+4. top 30, sorted by stars descending — no pagination yet
  
 
 ## Questions about product -
 1. do we need to implement the pagination
+2. should recent searches show cached results instantly, or is always-fresh the desired behavior or we can first show the stale data and then if it is updated then can shoow the updated result.
+3. do we need to make a smart filter for seperate things or dirty search is ok.
