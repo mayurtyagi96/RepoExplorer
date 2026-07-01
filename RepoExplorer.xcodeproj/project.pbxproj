@@ -12,30 +12,11 @@
 		7743771B2FE43F060084B848 /* claudeCodeTranscript.txt in Resources */ = {isa = PBXBuildFile; fileRef = 774377172FE43F060084B848 /* claudeCodeTranscript.txt */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		77B80C362FE3BEC300F7A775 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 77B80C202FE3BEC200F7A775 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 77B80C272FE3BEC200F7A775;
-			remoteInfo = RepoExplorer;
-		};
-		77B80C402FE3BEC300F7A775 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 77B80C202FE3BEC200F7A775 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 77B80C272FE3BEC200F7A775;
-			remoteInfo = RepoExplorer;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		774377162FE43F060084B848 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 		774377172FE43F060084B848 /* claudeCodeTranscript.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = claudeCodeTranscript.txt; sourceTree = "<group>"; };
 		774377182FE43F060084B848 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		77B80C282FE3BEC200F7A775 /* RepoExplorer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RepoExplorer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		77B80C352FE3BEC300F7A775 /* RepoExplorerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RepoExplorerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		77B80C3F2FE3BEC300F7A775 /* RepoExplorerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RepoExplorerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -44,34 +25,10 @@
 			path = RepoExplorer;
 			sourceTree = "<group>";
 		};
-		77B80C382FE3BEC300F7A775 /* RepoExplorerTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RepoExplorerTests;
-			sourceTree = "<group>";
-		};
-		77B80C422FE3BEC300F7A775 /* RepoExplorerUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RepoExplorerUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		77B80C252FE3BEC200F7A775 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		77B80C322FE3BEC300F7A775 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		77B80C3C2FE3BEC300F7A775 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -88,8 +45,6 @@
 				774377172FE43F060084B848 /* claudeCodeTranscript.txt */,
 				774377182FE43F060084B848 /* README.md */,
 				77B80C2A2FE3BEC200F7A775 /* RepoExplorer */,
-				77B80C382FE3BEC300F7A775 /* RepoExplorerTests */,
-				77B80C422FE3BEC300F7A775 /* RepoExplorerUITests */,
 				77B80C292FE3BEC200F7A775 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -98,8 +53,6 @@
 			isa = PBXGroup;
 			children = (
 				77B80C282FE3BEC200F7A775 /* RepoExplorer.app */,
-				77B80C352FE3BEC300F7A775 /* RepoExplorerTests.xctest */,
-				77B80C3F2FE3BEC300F7A775 /* RepoExplorerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,52 +82,6 @@
 			productReference = 77B80C282FE3BEC200F7A775 /* RepoExplorer.app */;
 			productType = "com.apple.product-type.application";
 		};
-		77B80C342FE3BEC300F7A775 /* RepoExplorerTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 77B80C4C2FE3BEC300F7A775 /* Build configuration list for PBXNativeTarget "RepoExplorerTests" */;
-			buildPhases = (
-				77B80C312FE3BEC300F7A775 /* Sources */,
-				77B80C322FE3BEC300F7A775 /* Frameworks */,
-				77B80C332FE3BEC300F7A775 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				77B80C372FE3BEC300F7A775 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				77B80C382FE3BEC300F7A775 /* RepoExplorerTests */,
-			);
-			name = RepoExplorerTests;
-			packageProductDependencies = (
-			);
-			productName = RepoExplorerTests;
-			productReference = 77B80C352FE3BEC300F7A775 /* RepoExplorerTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		77B80C3E2FE3BEC300F7A775 /* RepoExplorerUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 77B80C4F2FE3BEC300F7A775 /* Build configuration list for PBXNativeTarget "RepoExplorerUITests" */;
-			buildPhases = (
-				77B80C3B2FE3BEC300F7A775 /* Sources */,
-				77B80C3C2FE3BEC300F7A775 /* Frameworks */,
-				77B80C3D2FE3BEC300F7A775 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				77B80C412FE3BEC300F7A775 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				77B80C422FE3BEC300F7A775 /* RepoExplorerUITests */,
-			);
-			name = RepoExplorerUITests;
-			packageProductDependencies = (
-			);
-			productName = RepoExplorerUITests;
-			productReference = 77B80C3F2FE3BEC300F7A775 /* RepoExplorerUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -187,14 +94,6 @@
 				TargetAttributes = {
 					77B80C272FE3BEC200F7A775 = {
 						CreatedOnToolsVersion = 26.1.1;
-					};
-					77B80C342FE3BEC300F7A775 = {
-						CreatedOnToolsVersion = 26.1.1;
-						TestTargetID = 77B80C272FE3BEC200F7A775;
-					};
-					77B80C3E2FE3BEC300F7A775 = {
-						CreatedOnToolsVersion = 26.1.1;
-						TestTargetID = 77B80C272FE3BEC200F7A775;
 					};
 				};
 			};
@@ -213,8 +112,6 @@
 			projectRoot = "";
 			targets = (
 				77B80C272FE3BEC200F7A775 /* RepoExplorer */,
-				77B80C342FE3BEC300F7A775 /* RepoExplorerTests */,
-				77B80C3E2FE3BEC300F7A775 /* RepoExplorerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -230,20 +127,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		77B80C332FE3BEC300F7A775 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		77B80C3D2FE3BEC300F7A775 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -254,34 +137,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		77B80C312FE3BEC300F7A775 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		77B80C3B2FE3BEC300F7A775 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		77B80C372FE3BEC300F7A775 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 77B80C272FE3BEC200F7A775 /* RepoExplorer */;
-			targetProxy = 77B80C362FE3BEC300F7A775 /* PBXContainerItemProxy */;
-		};
-		77B80C412FE3BEC300F7A775 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 77B80C272FE3BEC200F7A775 /* RepoExplorer */;
-			targetProxy = 77B80C402FE3BEC300F7A775 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		77B80C472FE3BEC300F7A775 /* Debug */ = {
@@ -473,94 +329,6 @@
 			};
 			name = Release;
 		};
-		77B80C4D2FE3BEC300F7A775 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8KLUKAU6B7;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mayur.RepoExplorerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RepoExplorer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RepoExplorer";
-			};
-			name = Debug;
-		};
-		77B80C4E2FE3BEC300F7A775 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8KLUKAU6B7;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mayur.RepoExplorerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RepoExplorer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RepoExplorer";
-			};
-			name = Release;
-		};
-		77B80C502FE3BEC300F7A775 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8KLUKAU6B7;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mayur.RepoExplorerUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = RepoExplorer;
-			};
-			name = Debug;
-		};
-		77B80C512FE3BEC300F7A775 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8KLUKAU6B7;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mayur.RepoExplorerUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = RepoExplorer;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -578,24 +346,6 @@
 			buildConfigurations = (
 				77B80C4A2FE3BEC300F7A775 /* Debug */,
 				77B80C4B2FE3BEC300F7A775 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		77B80C4C2FE3BEC300F7A775 /* Build configuration list for PBXNativeTarget "RepoExplorerTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				77B80C4D2FE3BEC300F7A775 /* Debug */,
-				77B80C4E2FE3BEC300F7A775 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		77B80C4F2FE3BEC300F7A775 /* Build configuration list for PBXNativeTarget "RepoExplorerUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				77B80C502FE3BEC300F7A775 /* Debug */,
-				77B80C512FE3BEC300F7A775 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

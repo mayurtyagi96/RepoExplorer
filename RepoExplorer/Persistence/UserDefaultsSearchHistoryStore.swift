@@ -8,27 +8,12 @@
 import Foundation
 
 /// An `actor` so the read-modify-write of the recent list is one serialized critical section
-/// (no lost-update races) and runs off the main actor.
-///
-/// Config is held as `nonisolated let` (all `Sendable`) so the initializer — inferred `@MainActor`
-/// under the project's default isolation — can set it without touching actor-isolated state. The
-/// `UserDefaults` is derived on demand from the suite name (instances are process-shared per suite).
+/// (no lost-update races) and runs off the main actor. Persists to the app's standard
+/// `UserDefaults`.
 actor UserDefaultsSearchHistoryStore: SearchHistoryStore {
-    static let defaultKey = "recentSearches"
-
-    private nonisolated let suiteName: String?
-    private nonisolated let key: String
-    private nonisolated let maxCount: Int
-
-    init(suiteName: String? = nil, key: String = defaultKey, maxCount: Int = 20) {
-        self.suiteName = suiteName
-        self.key = key
-        self.maxCount = maxCount
-    }
-
-    private var defaults: UserDefaults {
-        suiteName.flatMap(UserDefaults.init(suiteName:)) ?? .standard
-    }
+    private let key = "recentSearches"
+    private let maxCount = 20
+    private let defaults = UserDefaults.standard
 
     func recent() -> [RecentSearch] { load() }
 

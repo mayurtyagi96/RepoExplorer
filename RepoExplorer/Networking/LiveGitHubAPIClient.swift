@@ -15,13 +15,10 @@ import Foundation
 /// `SWIFT_APPROACHABLE_CONCURRENCY = YES`, a plain `nonisolated async` func would otherwise run on
 /// the caller's actor, putting the decode back on the main thread.
 nonisolated struct LiveGitHubAPIClient: GitHubAPIClient {
-    private let session: URLSession
     /// Injection point for a future bearer token. Returns `nil` today (unauthenticated).
     private let tokenProvider: @Sendable () -> String?
 
-    init(session: URLSession = .shared,
-         tokenProvider: @escaping @Sendable () -> String? = { nil }) {
-        self.session = session
+    init(tokenProvider: @escaping @Sendable () -> String? = { nil }) {
         self.tokenProvider = tokenProvider
     }
 
@@ -38,7 +35,7 @@ nonisolated struct LiveGitHubAPIClient: GitHubAPIClient {
         let data: Data
         let response: URLResponse
         do {
-            (data, response) = try await session.data(for: request)
+            (data, response) = try await URLSession.shared.data(for: request)
         } catch let error as URLError where error.code == .cancelled {
             throw CancellationError()
         } catch is CancellationError {
@@ -69,7 +66,7 @@ nonisolated struct LiveGitHubAPIClient: GitHubAPIClient {
 
     /// Builds the search request, percent-encoding the `q` value explicitly so qualifiers
     /// (`language:swift`, `stars:>100`) and `+` survive correctly.
-    nonisolated func makeRequest(query: String, page: Int, perPage: Int) throws -> URLRequest {
+    private nonisolated func makeRequest(query: String, page: Int, perPage: Int) throws -> URLRequest {
         guard var components = URLComponents(string: Self.endpoint) else { throw GitHubAPIError.invalidURL }
         components.queryItems = [
             URLQueryItem(name: "sort", value: "stars"),

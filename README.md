@@ -48,21 +48,6 @@ xcrun simctl install booted \
 xcrun simctl launch booted com.mayur.RepoExplorer
 ```
 
-## Tests
-
-```bash
-# All tests (unit + UI)
-xcodebuild test -project RepoExplorer.xcodeproj -scheme RepoExplorer \
-  -destination 'platform=iOS Simulator,name=iPhone 17'
-
-# Unit tests only
-xcodebuild test -project RepoExplorer.xcodeproj -scheme RepoExplorer \
-  -only-testing:RepoExplorerTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17'
-```
-
-In Xcode, press **⌘U** to run the test suite.
-
 ## Architecture
 
 MVVM under **Swift 6 strict concurrency** (no Combine, no GCD):
