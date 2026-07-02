@@ -64,21 +64,19 @@ nonisolated struct LiveGitHubAPIClient: GitHubAPIClient {
         }
     }
 
-    /// Builds the search request, percent-encoding the `q` value explicitly so qualifiers
-    /// (`language:swift`, `stars:>100`) and `+` survive correctly.
+    /// Builds the search request: `q` plus sorting/paging params.
     private nonisolated func makeRequest(query: String, page: Int, perPage: Int) throws -> URLRequest {
         guard var components = URLComponents(string: Self.endpoint) else { throw GitHubAPIError.invalidURL }
         components.queryItems = [
+            URLQueryItem(name: "q", value: query),
             URLQueryItem(name: "sort", value: "stars"),
             URLQueryItem(name: "order", value: "desc"),
             URLQueryItem(name: "per_page", value: String(perPage)),
             URLQueryItem(name: "page", value: String(page)),
         ]
-        // Encode the q VALUE only (not the whole query string). Allow RFC 3986 unreserved chars;
-        // everything else (space, ':', '>', '+', ...) is percent-encoded and GitHub decodes it back.
-        let encodedQ = query.addingPercentEncoding(withAllowedCharacters: Self.queryValueAllowed) ?? ""
-        let tail = components.percentEncodedQuery.map { "&\($0)" } ?? ""
-        components.percentEncodedQuery = "q=\(encodedQ)\(tail)"
+        // URLComponents leaves "+" unencoded, but GitHub reads a raw "+" as a space — encode it
+        // so queries like "c++" work. (Spaces are already encoded as %20, not "+".)
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
 
         guard let url = components.url else { throw GitHubAPIError.invalidURL }
         var request = URLRequest(url: url)
@@ -89,13 +87,6 @@ nonisolated struct LiveGitHubAPIClient: GitHubAPIClient {
         }
         return request
     }
-
-    /// Alphanumerics + RFC 3986 unreserved marks. Notably excludes space and `+`.
-    private static let queryValueAllowed: CharacterSet = {
-        var set = CharacterSet.alphanumerics
-        set.insert(charactersIn: "-._~")
-        return set
-    }()
 
     private static func message(from data: Data) -> String? {
         (try? decoder.decode(GitHubErrorBody.self, from: data))?.message
